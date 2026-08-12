@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>El Oráculo — Motor Analítico Delta Neutral</title>
+<style>
+:root{
+  --page:#f4f5f9; --ink:#0f1e3d; --blue:#2563eb; --red:#dc2626; --line:#e4e7ef;
+  --mono: ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --sans: system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);font-family:var(--sans);color:var(--ink);padding:22px;line-height:1.45}
+.wrap{max-width:1000px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+.header{background:#fff;border-radius:14px;border-top:4px solid var(--blue);border-bottom:4px solid var(--red);
+  box-shadow:0 4px 14px rgba(15,30,61,.09);padding:20px 24px}
+.header h1{margin:0;font-size:29px;font-weight:800;letter-spacing:-.5px}
+.header p{margin:4px 0 0;font-size:12.5px;font-weight:700;color:var(--blue);letter-spacing:.7px;text-transform:uppercase}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(268px,1fr));gap:16px}
+a.card{display:block;text-decoration:none;color:inherit;border-radius:14px;padding:22px 24px;
+  box-shadow:0 6px 20px rgba(13,27,62,.24);transition:transform .18s ease, box-shadow .18s ease}
+a.card:hover,a.card:focus-visible{transform:translateY(-4px);box-shadow:0 12px 28px rgba(13,27,62,.32)}
+a.card:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
+.btc{background:linear-gradient(135deg,#3a2c14,#9a6a22)}
+.eur{background:linear-gradient(135deg,#0d1b3e,#1c3f92)}
+.wti{background:linear-gradient(135deg,#1a1a24,#5a1524)}
+.tick{font-family:var(--mono);font-size:12px;letter-spacing:1.6px;color:rgba(255,255,255,.62);text-transform:uppercase}
+.name{font-size:27px;font-weight:800;color:#fff;margin:6px 0 8px;letter-spacing:-.4px}
+.desc{font-size:13.5px;color:rgba(255,255,255,.80)}
+.go{margin-top:16px;font-size:13px;font-weight:700;color:#fff}
+.nota{background:#fff;border-radius:14px;padding:18px 22px;box-shadow:0 4px 14px rgba(15,30,61,.09);
+  font-size:13.5px;color:#46536f}
+.nota b{color:var(--ink)}
+@media (prefers-reduced-motion:reduce){a.card{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <h1>Motor Analítico: El Oráculo</h1>
+    <p>🚩 Delta Neutral Institucional — Estelvina &amp; Paco</p>
+  </div>
+
+  <div class="grid">
+    <a class="card btc" href="ORACULO_BITCOIN.html">
+      <div class="tick">BTC / USD · 24/7</div>
+      <div class="name">Bitcoin</div>
+      <div class="desc">Vela diaria sobre Binance, con Coinbase de respaldo. Sin campana: el mercado nunca cierra.</div>
+      <div class="go">Abrir el oráculo →</div>
+    </a>
+
+    <a class="card eur" href="ORACULO_EURUSD.html">
+      <div class="tick">EUR / USD · 24/5</div>
+      <div class="name">Euro / Dólar</div>
+      <div class="desc">Sesión de divisas con referencia del Banco Central Europeo. Cinco decimales.</div>
+      <div class="go">Abrir el oráculo →</div>
+    </a>
+
+    <a class="card wti" href="ORACULO_PETROLEO.html">
+      <div class="tick">WTI · CL FUTURO</div>
+      <div class="name">Petróleo</div>
+      <div class="desc">Crudo WTI continuo. Reacciona a inventarios semanales y decisiones geopolíticas.</div>
+      <div class="go">Abrir el oráculo →</div>
+    </a>
+  </div>
+
+  <div class="nota">
+    <b>Los tres tableros se actualizan solos</b> cada minuto mientras los tengas abiertos, y vuelven a
+    sincronizar cuando regresas a la pestaña. Si una fuente de mercado no responde, cada oráculo permite
+    escribir los cuatro precios a mano y recalcula todo igual.
+    <br><br>
+    <b>Esto es una herramienta de análisis, no una recomendación de inversión.</b> Los niveles salen de
+    reglas fijas aplicadas a precios pasados: describen lo que hizo el mercado, no lo que hará.
+    Usa el módulo de riesgo antes de cada entrada y opera sólo con dinero que puedas perder.
+  </div>
+
+</div>
+</body>
+</html>
