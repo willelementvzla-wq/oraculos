@@ -1,0 +1,815 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>El Oráculo del Petróleo — Motor Analítico</title>
+<style>
+:root{
+  --page:#f4f5f9; --ink:#0f1e3d; --ink2:#33415c; --muted:#8a94a8;
+  --blue:#2563eb; --blue-l:#60a5fa; --red:#dc2626; --green:#16a34a;
+  --gold:#f5c451; --purple:#7c3aed;
+  --line:#e4e7ef;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);font-family:var(--sans);color:var(--ink);padding:18px;line-height:1.45}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+/* ---------- CABECERA ---------- */
+.header{background:#fff;border-radius:14px;border-top:4px solid var(--blue);border-bottom:4px solid var(--red);
+  box-shadow:0 4px 14px rgba(15,30,61,.09);padding:14px 22px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.hbadge{font-size:26px;font-weight:400;color:#6b7891;letter-spacing:1px;font-family:var(--mono)}
+.htitle{flex:1;min-width:260px}
+.htitle h1{margin:0;font-size:27px;font-weight:800;letter-spacing:-.4px}
+.htitle p{margin:2px 0 0;font-size:12.5px;font-weight:700;color:var(--blue);letter-spacing:.7px;text-transform:uppercase}
+.tabs{display:flex;gap:4px;background:#eef1f7;border-radius:11px;padding:5px;flex-wrap:wrap}
+.tab{border:0;background:transparent;font:inherit;font-size:13px;font-weight:600;color:#5b6478;
+  padding:8px 13px;border-radius:8px;cursor:pointer;white-space:nowrap}
+.tab:hover{background:#e2e7f1}
+.tab.on{background:var(--blue);color:#fff;box-shadow:0 2px 6px rgba(37,99,235,.35)}
+.tab:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+
+/* ---------- RADAR ---------- */
+.radar{border-radius:14px;padding:18px 20px;color:#e8edf7;
+  background:linear-gradient(103deg,#0d1b3e 0%,#152350 42%,#3d1424 78%,#5a1524 100%);
+  box-shadow:0 6px 20px rgba(13,27,62,.28)}
+.radar-top{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap;margin-bottom:14px}
+.radar h2{margin:0;font-size:14.5px;letter-spacing:1.3px;font-weight:800;color:#a9c0ec;text-transform:uppercase}
+.radar .mes{margin:6px 0 0;font-size:19px;font-weight:800;color:#fff}
+.tercios{display:flex;gap:9px;flex-wrap:wrap}
+.tercio{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);border-radius:9px;
+  padding:10px 20px;text-align:center;font-size:12.5px;color:#96a3bd;min-width:158px}
+.tercio b{display:block;font-size:13px;letter-spacing:.6px;margin-top:2px}
+.tercio.on{background:rgba(30,64,150,.75);border-color:#e06a5a;color:#dce6fb}
+.tercio.on b{color:#fff}
+.alerta{background:rgba(4,8,20,.42);border:1px solid rgba(255,255,255,.09);border-radius:9px;padding:11px 15px;
+  font-size:14px;margin-top:11px;color:#dbe3f2}
+.alerta .k{color:var(--blue-l);font-weight:700}
+.al-row{display:flex;gap:13px;align-items:flex-start;border-radius:9px;padding:13px 16px;margin-top:11px}
+.al-ico{font-size:22px;line-height:1.1}
+.al-macondo{background:linear-gradient(94deg,#3a2c14 0%,#6d4c1c 55%,#9a6a22 100%);border:1px solid #cf9a3d}
+.al-macondo h3{margin:0 0 3px;font-size:14px;color:var(--gold);letter-spacing:.5px;text-transform:uppercase}
+.al-macondo p{margin:0;font-size:13.6px;color:#f3e6cd}
+.al-tsu{background:linear-gradient(94deg,#0e2c66 0%,#153a80 100%);border:1px solid #3b82f6}
+.al-tsu h3{margin:0 0 3px;font-size:14px;color:#7db1ff;letter-spacing:.5px;text-transform:uppercase}
+.al-tsu p{margin:0;font-size:13.6px;color:#d5e4fb}
+.al-tsu b,.al-macondo b{color:#fff}
+
+/* ---------- RELOJ ---------- */
+.reloj{background:#101a33;border-radius:14px;padding:18px 20px;color:#dbe3f2;box-shadow:0 6px 20px rgba(13,27,62,.22)}
+.reloj > h2{margin:0 0 14px;font-size:14.5px;letter-spacing:1.3px;color:#8fa8e0;text-transform:uppercase;font-weight:800}
+.rel-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(272px,1fr));gap:14px}
+.rcard{background:#161f38;border:1px solid rgba(255,255,255,.08);border-radius:11px;padding:15px 17px;position:relative}
+.rcard h4{margin:0 0 12px;font-size:12.5px;letter-spacing:.9px;text-transform:uppercase;color:#c3cee6;font-weight:800}
+.rcard.c2 h4{color:#f18fa8}.rcard.c3{background:#1b2450;border-color:#3a4a8f}.rcard.c3 h4{color:#a9bdff}
+.dot{position:absolute;top:13px;right:14px;width:10px;height:10px;border-radius:50%;background:#e0455f}
+.pair{display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
+.lab{font-size:10.5px;letter-spacing:.8px;text-transform:uppercase;color:#6f7d9c}
+.big{font-size:25px;font-weight:700;letter-spacing:-.5px;color:#fff}
+.mid{font-size:17px;font-weight:600;color:#b9c4dc}
+.up{color:#3fd68a}.dn{color:#ff5f7a}
+.pmrow{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.pmrow .t{font-size:11.5px;color:#7b88a6;margin-left:5px}
+.flag{margin-top:11px;background:rgba(184,32,60,.20);border:1px solid #b3273f;border-radius:7px;padding:7px 11px;
+  font-size:12.5px;color:#ff9db0}
+.flag.ok{background:rgba(20,120,70,.16);border-color:#1c8f5a;color:#5fe3a5}
+.sep{height:1px;background:rgba(255,255,255,.10);margin:11px 0}
+.scan{font-size:12px;color:#9aa7c4}.scan b{color:#3fd68a}.scan b.warn{color:#ffb454}
+
+/* ---------- TICKETS ---------- */
+.card{background:#fff;border-radius:14px;box-shadow:0 4px 14px rgba(15,30,61,.09);padding:20px 22px}
+.card > h2{margin:0;font-size:19px;font-weight:800;letter-spacing:-.2px}
+.tk-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.openbox{background:#eef2fb;border:1px solid #dbe3f5;border-radius:10px;padding:8px 16px;text-align:center}
+.openbox .lab{color:#6f7d9c}
+.openbox .v{font-size:22px;font-weight:700;color:var(--blue)}
+hr.rule{border:0;border-top:1px solid var(--line);margin:16px 0}
+.tk-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.tk{border:2px solid;border-radius:12px;padding:16px 17px;display:flex;flex-direction:column;gap:11px}
+.tk.long{border-color:#34c98a;background:#fbfffd}
+.tk.short{border-color:#f0a5b4;background:#fffbfc}
+.tk h3{margin:0;font-size:16px;font-weight:700;display:flex;gap:8px;align-items:center}
+.tk.long h3{color:#0f7a4d}.tk.short h3{color:#b32741}
+.tkprice{font-size:33px;font-weight:800;letter-spacing:-1px;margin:-4px 0 0}
+.tk.long .tkprice{color:var(--green)}.tk.short .tkprice{color:var(--red)}
+.formula{background:#f6f7fb;border:1px solid var(--line);border-radius:8px;padding:9px 12px;font-family:var(--mono);font-size:13px;color:#4a5670}
+.subbox{background:#f7f8fc;border:1px solid var(--line);border-radius:9px;padding:11px 13px}
+.subbox h5{margin:0 0 6px;font-size:13.5px;font-weight:700;color:#31405e;display:flex;gap:7px;align-items:center}
+.subbox p{margin:3px 0;font-size:13px;color:#46536f}
+.subbox p b{color:#1f2c47}
+.warnline{color:#c47c07;font-weight:600;font-size:12.5px}
+.tsubox{background:#eef4ff;border-color:#cfe0fb}
+.tsubox h5{color:#1b4fb0}
+.goal{margin-top:8px;background:#dbe9ff;border-radius:7px;padding:7px 11px;font-size:12.5px;font-weight:700;color:#12408f}
+.shield{background:#fdeef2;border:1px solid #f5c2ce}
+.shield h5{color:#b32741}
+.shield .bar{background:#fbdae2;border-radius:7px;padding:7px 11px;font-size:12.5px;font-weight:700;color:#9c1f38;margin-top:6px}
+.dim{color:#9aa4b8;font-size:13px}
+
+/* ---------- MERCE ---------- */
+.merce{border-radius:14px;padding:20px 22px;color:#e9eefb;
+  background:linear-gradient(128deg,#10306f 0%,#1c3f92 38%,#5d2246 76%,#8a2331 100%);
+  box-shadow:0 6px 20px rgba(13,27,62,.26)}
+.merce h2{margin:0 0 12px;font-size:16px;font-weight:800;color:#8ec0ff;letter-spacing:.5px;text-transform:uppercase}
+.merce p{margin:0 0 10px;font-size:14px}
+.merce b{color:#fff}.merce i{color:#ffd9e2}
+
+/* ---------- COLISEO ---------- */
+.coliseo{border-left:5px solid var(--purple)}
+.col-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(258px,1fr));gap:16px;margin-top:16px}
+.col{border:1px solid var(--line);border-radius:12px;padding:15px 16px;position:relative;background:#fcfcfe}
+.col.c1{background:#fafaff}.col.c2{background:#f5f9ff;border-color:#d6e6fb}
+.col.c3{background:linear-gradient(160deg,#fff1f6,#ffe3ee);border:2px solid #e0447f}
+.coltag{position:absolute;top:-11px;right:12px;font-size:10.5px;font-weight:800;letter-spacing:.6px;
+  padding:4px 10px;border-radius:6px;color:#fff;text-transform:uppercase}
+.c1 .coltag{background:#39424f}.c2 .coltag{background:var(--blue)}.c3 .coltag{background:#e0447f}
+.col h3{margin:0 0 12px;font-size:15px;font-weight:700;padding-right:60px}
+.box{background:#fff;border:1px solid var(--line);border-radius:9px;padding:11px;text-align:center;margin-bottom:11px}
+.box .lab{color:#8a94a8;margin-bottom:4px}
+.box .v{font-size:22px;font-weight:800}
+.c3 .box{background:#4d0723;border-color:#4d0723}
+.c3 .box .lab{color:#f0a8c4}.c3 .box .v{color:#ff5fa2;font-size:23px}
+.kv{display:flex;justify-content:space-between;font-size:13px;padding:3px 0;color:#46536f}
+.kv b{font-family:var(--mono)}
+.split{display:flex;text-align:center}
+.split > div{flex:1}
+.split .v{font-size:21px;font-weight:800}
+.analisis{background:#f2f3f7;border-radius:8px;padding:11px 12px;font-size:12.6px;color:#4b586f;margin-top:11px}
+.c3 .analisis{background:#5d0c2c;color:#ffd7e6;font-style:italic}
+.c3 .analisis b{color:#fff}
+
+/* ---------- CONSEJO SEGURO (NUEVO) ---------- */
+.safe{border-left:5px solid var(--green)}
+.safe h2{display:flex;align-items:center;gap:9px}
+.safe-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:14px}
+.panel{border:1px solid var(--line);border-radius:12px;padding:15px 16px;background:#fbfdfc}
+.panel h4{margin:0 0 10px;font-size:13px;letter-spacing:.7px;text-transform:uppercase;color:#0f7a4d;font-weight:800}
+.field{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:9px}
+.field label{font-size:13px;color:#46536f}
+.field input{width:118px;padding:7px 9px;border:1px solid #cfd6e4;border-radius:7px;font-family:var(--mono);font-size:13px;text-align:right}
+.out{display:flex;justify-content:space-between;font-size:13.5px;padding:6px 0;border-top:1px dashed #dfe4ee}
+.out b{font-family:var(--mono);font-size:15px}
+.check{display:flex;gap:9px;align-items:flex-start;font-size:13.2px;color:#46536f;margin-bottom:8px;cursor:pointer}
+.check input{margin-top:3px;width:16px;height:16px;accent-color:var(--green);flex:none}
+.tip{background:#eefaf3;border:1px solid #b9e7cf;border-radius:9px;padding:12px 14px;font-size:13.5px;color:#14603f;margin-top:14px}
+.tip b{color:#0a4b2f}
+.legal{font-size:12px;color:#7c869a;margin-top:12px;line-height:1.55}
+
+/* ---------- ESTADO / MANUAL ---------- */
+.status{display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-size:12.5px;color:#6f7b93}
+.pill{background:#e9edf6;border-radius:20px;padding:4px 12px;font-weight:600}
+.pill.live{background:#dcfce7;color:#12653f}
+.pill.err{background:#fee2e2;color:#9b1c26}
+.btn{border:1px solid #cfd6e4;background:#fff;border-radius:8px;padding:7px 14px;font:inherit;font-size:13px;
+  font-weight:600;color:#33415c;cursor:pointer}
+.btn:hover{background:#f2f5fb}
+.btn.p{background:var(--blue);border-color:var(--blue);color:#fff}
+#manual{display:none}
+#manual.show{display:block}
+.mgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:14px 0}
+.mgrid .field{flex-direction:column;align-items:stretch;gap:5px}
+.mgrid input{width:100%;text-align:left}
+.loading{padding:44px;text-align:center;color:#8a94a8;font-size:14px}
+@media (max-width:760px){
+  body{padding:11px}
+  .tk-grid{grid-template-columns:1fr}
+  .htitle h1{font-size:21px}
+  .tkprice{font-size:28px}
+}
+@media (prefers-reduced-motion:no-preference){
+  .wrap > *{animation:rise .45s ease both}
+  .wrap > *:nth-child(2){animation-delay:.05s}.wrap > *:nth-child(3){animation-delay:.1s}
+  .wrap > *:nth-child(4){animation-delay:.15s}.wrap > *:nth-child(5){animation-delay:.2s}
+  @keyframes rise{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+}
+</style>
+</head>
+<body>
+<div class="wrap" id="app">
+  <div class="loading" id="boot">Conectando con el mercado…</div>
+</div>
+
+<script>
+/* ============================================================
+   EL ORÁCULO — MOTOR ANALÍTICO
+   Config del activo (inyectada por el generador)
+   ============================================================ */
+const ASSET = {"key": "wti", "name": "Petróleo", "badge": "WTI", "symbol": "$", "decimals": 2, "step": 1, "unidad": "barriles", "sizeDec": 2, "cuenta": "$", "subtitulo": "Delta Neutral Institucional — Crudo WTI (CL) · Futuro continuo", "riesgo": "El crudo reacciona a decisiones geopolíticas e inventarios semanales, y los futuros tienen vencimientos y apalancamiento por contrato."};
+
+/* ---------- utilidades ---------- */
+const $ = s => document.querySelector(s);
+const dec = ASSET.decimals;
+const fmt = (x, d = dec) => (x === null || x === undefined || !isFinite(x)) ? '--'
+  : Number(x).toLocaleString('en-US', {minimumFractionDigits: d, maximumFractionDigits: d});
+const money = (x, d = dec) => (x === null || !isFinite(x)) ? '--' : ASSET.symbol + fmt(x, d);
+const cash  = x => (!isFinite(x)) ? '--' : ASSET.cuenta + fmt(x, 2);
+const signed = (x, d = dec) => (x >= 0 ? '+' : '-') + ASSET.symbol + fmt(Math.abs(x), d);
+const MESES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const MESC = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const hhmm = ts => new Date(ts).toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit', timeZone:'UTC'}) + ' UTC';
+const avg = a => a.reduce((s,v)=>s+v,0)/a.length;
+
+/* ---------- red: intento directo + proxies CORS ---------- */
+const PROXIES = [
+  u => u,
+  u => 'https://api.codetabs.com/v1/proxy?quest=' + encodeURIComponent(u),
+  u => 'https://api.allorigins.win/raw?url=' + encodeURIComponent(u),
+  u => 'https://corsproxy.io/?url=' + encodeURIComponent(u),
+  u => 'https://thingproxy.freeboard.io/fetch/' + u
+];
+const opcional = async f => { try { return await f(); } catch (e) { return []; } };
+async function grab(url, asText) {
+  let last;
+  for (const p of PROXIES) {
+    try {
+      const r = await fetch(p(url), {cache:'no-store'});
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return asText ? await r.text() : await r.json();
+    } catch (e) { last = e; }
+  }
+  throw last;
+}
+
+/* ============================================================
+   FUENTES DE DATOS POR ACTIVO
+   Devuelven { daily:[{t,o,h,l,c}], intraday:[{t,o,h,l,c}], fuente, extra }
+   ============================================================ */
+const K = k => ({t:+k[0], o:+k[1], h:+k[2], l:+k[3], c:+k[4]});
+
+async function srcBinance(sym) {
+  const d = await grab(`https://api.binance.com/api/v3/klines?symbol=${sym}&interval=1d&limit=70`);
+  if (!Array.isArray(d) || d.length < 25) throw new Error('serie corta');
+  const i = await opcional(() => grab(`https://api.binance.com/api/v3/klines?symbol=${sym}&interval=1h&limit=72`));
+  return {daily: d.map(K), intraday: Array.isArray(i) ? i.map(K) : [], fuente: 'Binance ' + sym};
+}
+async function srcCoinbase() {
+  const c = await grab('https://api.exchange.coinbase.com/products/BTC-USD/candles?granularity=86400');
+  if (!Array.isArray(c) || c.length < 25) throw new Error('serie corta');
+  const h = await opcional(() => grab('https://api.exchange.coinbase.com/products/BTC-USD/candles?granularity=3600'));
+  const m = a => (Array.isArray(a) ? a : []).map(r => ({t:r[0]*1000, l:+r[1], h:+r[2], o:+r[3], c:+r[4]})).sort((x,y)=>x.t-y.t);
+  return {daily: m(c), intraday: m(h), fuente: 'Coinbase BTC-USD'};
+}
+async function srcYahoo(sym) {
+  const d = await grab(`https://query1.finance.yahoo.com/v8/finance/chart/${sym}?interval=1d&range=4mo`);
+  const i = await opcional(() => grab(`https://query1.finance.yahoo.com/v8/finance/chart/${sym}?interval=60m&range=5d`));
+  const conv = j => {
+    if (!j || !j.chart || !j.chart.result || !j.chart.result[0]) return [];
+    const r = j.chart.result[0], q = r.indicators.quote[0], out = [];
+    r.timestamp.forEach((t, n) => {
+      if (q.open[n] == null || q.close[n] == null) return;
+      out.push({t: t*1000, o:+q.open[n], h:+q.high[n], l:+q.low[n], c:+q.close[n]});
+    });
+    return out;
+  };
+  const dd = conv(d);
+  if (dd.length < 25) throw new Error('serie corta');
+  return {daily: dd, intraday: conv(i), fuente: 'Yahoo Finance ' + sym};
+}
+async function srcStooq(sym) {
+  const txt = await grab(`https://stooq.com/q/d/l/?s=${sym}&i=d`, true);
+  if (!/^Date,/i.test(txt.trim())) throw new Error('sin datos');
+  const rows = txt.trim().split('\n').slice(1).map(r => r.split(','));
+  const out = rows.filter(r => r.length >= 5 && r[1] !== 'N/D')
+    .map(r => ({t: Date.parse(r[0] + 'T00:00:00Z'), o:+r[1], h:+r[2], l:+r[3], c:+r[4]}))
+    .filter(r => isFinite(r.o)).slice(-70);
+  if (out.length < 25) throw new Error('serie corta');
+  return {daily: out, intraday: [], fuente: 'Stooq ' + sym.toUpperCase()};
+}
+async function srcFrankfurter() {
+  const from = new Date(Date.now() - 130*864e5).toISOString().slice(0,10);
+  const j = await grab(`https://api.frankfurter.app/${from}..?from=EUR&to=USD`);
+  const out = Object.keys(j.rates).sort().map(k => {
+    const v = j.rates[k].USD;
+    return {t: Date.parse(k + 'T00:00:00Z'), o:v, h:v, l:v, c:v};
+  });
+  if (out.length < 25) throw new Error('serie corta');
+  return {daily: out, intraday: [], fuente: 'BCE / Frankfurter (cierres oficiales)'};
+}
+
+const FUENTES = {
+  btc:    [() => srcBinance('BTCUSDT'), () => srcCoinbase(), () => srcYahoo('BTC-USD'), () => srcStooq('btcusd')],
+  eurusd: [() => srcBinance('EURUSDT'), () => srcYahoo('EURUSD=X'), () => srcStooq('eurusd'), () => srcFrankfurter()],
+  wti:    [() => srcStooq('cl.f'), () => srcYahoo('CL=F'), () => srcStooq('cl.c'),
+           () => srcYahoo('BZ=F'), () => srcYahoo('USO'), () => srcStooq('uso.us')]
+};
+
+async function cargarDatos() {
+  const errs = [];
+  for (const f of FUENTES[ASSET.key]) {
+    try {
+      const r = await f();
+      r.daily.sort((a,b)=>a.t-b.t);
+      if (r.intraday) r.intraday.sort((a,b)=>a.t-b.t);
+      return r;
+    } catch (e) { errs.push(e.message); }
+  }
+  throw new Error('Sin conexión con las fuentes de mercado (' + errs.join(' · ') + ')');
+}
+
+/* ============================================================
+   INDICADORES
+   ============================================================ */
+function bollingerTop(closes, n = 20, k = 2) {
+  const s = closes.slice(-n); if (s.length < 5) return null;
+  const m = avg(s), sd = Math.sqrt(avg(s.map(v => (v-m)**2)));
+  return m + k*sd;
+}
+function atr(velas, n = 14) {
+  const s = velas.slice(-(n+1)); if (s.length < 3) return null;
+  const tr = [];
+  for (let i = 1; i < s.length; i++)
+    tr.push(Math.max(s[i].h - s[i].l, Math.abs(s[i].h - s[i-1].c), Math.abs(s[i].l - s[i-1].c)));
+  return avg(tr);
+}
+function ema(a, n) { const k = 2/(n+1); return a.reduce((p,v,i) => i ? v*k + p*(1-k) : v, 0); }
+
+/* ============================================================
+   MOTOR DEL ORÁCULO
+   idx = índice de la vela diaria que se analiza (la "sesión")
+   ============================================================ */
+function oraculo(data, idx) {
+  const D = data.daily;
+  const hoy = D[idx], ayer = D[idx-1];
+  const hist = D.slice(0, idx);                        // cerradas antes de la sesión
+  const closes = hist.map(v => v.c);
+
+  const open   = hoy.o;
+  const techo  = bollingerTop(closes, 20, 2);
+  const rango  = ayer.h - ayer.l;
+  const atr14  = atr(hist, 14) || rango;
+
+  // Excursiones medias desde la apertura (últimas 10 sesiones cerradas)
+  const ult = hist.slice(-10);
+  const mayor = avg(ult.map(v => Math.max(v.h - v.o, 0)));
+  const menor = avg(ult.map(v => Math.max(v.o - v.l, 0)));
+  const buffer = open * 0.0005;                        // colchón institucional 0,05 %
+
+  // --- Tickets MOO Delta Neutral ---
+  const tpLong  = open + mayor - buffer;
+  const tpShort = open - menor + buffer;
+
+  // --- Súper Quero Centrífuga ---
+  const cIntUp = open + atr14,  cExtUp = open + atr14 + mayor;
+  const cIntDn = open - atr14,  cExtDn = open - atr14 - mayor;
+  const divLong  = tpLong  < cIntUp;
+  const divShort = tpShort > cIntDn;
+
+  // --- Tsunami x2 ---
+  const tsuInt = open + 2*mayor + atr14;
+  const tsuExt = open + 2*mayor + atr14 + mayor;
+  const objetivo = Math.ceil(tsuExt / ASSET.step) * ASSET.step;
+
+  // --- Ventana PM (8 h previas a la apertura) ---
+  const ini = hoy.t - 8*3600e3;
+  const pm = (data.intraday || []).filter(v => v.t >= ini && v.t < hoy.t);
+  let pmMax = null, pmMin = null, tMax = null, tMin = null, barrido = false;
+  if (pm.length >= 2) {
+    pmMax = -Infinity; pmMin = Infinity;
+    pm.forEach(v => {
+      if (v.h > pmMax) { pmMax = v.h; tMax = v.t; }
+      if (v.l < pmMin) { pmMin = v.l; tMin = v.t; }
+    });
+    barrido = (tMin >= hoy.t - 2*3600e3) && open > pmMin;   // mínimo pegado a la campana
+  }
+  const dentro = (pmMax !== null) ? (open <= pmMax && open >= pmMin) : (Math.abs(open - ayer.c) <= atr14);
+
+  // --- Radar / Macondo ---
+  const f = new Date(hoy.t);
+  const dia = f.getUTCDate();
+  const tercio = dia <= 10 ? 0 : dia <= 20 ? 1 : 2;
+  const gap = open - ayer.c;
+  const aperturaPM = pm.length ? pm[0].o : open;
+  const macondo = aperturaPM - ayer.c;
+
+  // --- Fase Tsunami: sólo con estructura alcista confirmada ---
+  const pivot = (ayer.h + ayer.l + ayer.c) / 3;
+  const tendencia = ema(closes.slice(-5), 5) - ema(closes.slice(-20), 20);
+  const fase2 = (open > pivot) && (tendencia > 0);
+
+  // --- Coliseo ---
+  const e5 = ema(closes.slice(-5), 5), e10 = ema(closes.slice(-10), 10);
+  const vector = ((e5 - e10) / e10) * 100;
+  const predOpen = ayer.c * (1 + vector/100);
+  const acierto = Math.sign(predOpen - ayer.c) === Math.sign(open - ayer.c) && gap !== 0;
+
+  const z = (open - pivot) / atr14;
+  let longPct = Math.round(100 / (1 + Math.exp(-z * 1.8)));
+  longPct = Math.min(92, Math.max(8, longPct));
+
+  const votos = [
+    Math.sign(gap),
+    Math.sign(open - pivot),
+    Math.sign(tendencia),
+    barrido ? 1 : Math.sign(open - ayer.c)
+  ];
+  const suma = votos.reduce((a,b)=>a+b, 0);
+  const dir = suma >= 0 ? 'LARGO' : 'CORTO';
+  const acuerdo = votos.filter(v => Math.sign(v) === Math.sign(suma || 1)).length;
+  const letal = Math.round(acuerdo / votos.length * 100);
+  const dominio = letal >= 100 ? 'TOTAL' : letal >= 75 ? 'ALTO' : 'PARCIAL';
+
+  return {hoy, ayer, open, techo, rango, atr14, mayor, menor, buffer, tpLong, tpShort,
+    cIntUp, cExtUp, cIntDn, cExtDn, divLong, divShort, tsuInt, tsuExt, objetivo,
+    pmMax, pmMin, tMax, tMin, barrido, dentro, tercio, dia, fecha: f, gap, aperturaPM, macondo,
+    pivot, tendencia, fase2, vector, predOpen, acierto, longPct, dir, letal, dominio, pm};
+}
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+let DATA = null, IDX = -1;
+
+function pintar() {
+  const o = oraculo(DATA, IDX);
+  const tabs = [];
+  for (let i = Math.max(1, DATA.daily.length - 5); i < DATA.daily.length; i++) {
+    const f = new Date(DATA.daily[i].t);
+    tabs.push(`<button class="tab ${i===IDX?'on':''}" data-i="${i}">${f.getUTCDate()} ${MESC[f.getUTCMonth()]}</button>`);
+  }
+  const fechaCorta = o.fecha.getUTCDate() + ' ' + MESC[o.fecha.getUTCMonth()];
+  const gapTxt = o.gap === 0 ? 'Plano (sin brecha)' : o.gap > 0 ? 'Positivo (Gap Up)' : 'Negativo (Gap Down)';
+  const terLabels = [['Tercio 1 (Días 1-10)','APERTURA'],['Tercio 2 (Días 11-20)','CONSOLIDACIÓN'],['Tercio 3 (Días 21-31)','MÁX. DESARROLLO']];
+  const terNombre = ['Primer','Segundo','Tercer'][o.tercio];
+
+  $('#app').innerHTML = `
+
+  <!-- ══ CABECERA ══ -->
+  <div class="header">
+    <div class="hbadge">${ASSET.badge}</div>
+    <div class="htitle">
+      <h1>Motor Analítico: El Oráculo de ${ASSET.name}</h1>
+      <p>🚩 ${ASSET.subtitulo}</p>
+    </div>
+    <div class="tabs" id="tabs">${tabs.join('')}</div>
+  </div>
+
+  <!-- ══ RADAR DE TIEMPO ══ -->
+  <div class="radar">
+    <div class="radar-top">
+      <div>
+        <h2>⏰ Radar de Tiempo: Vela Mensual</h2>
+        <p class="mes">Mes: ${MESES[o.fecha.getUTCMonth()]} ${o.fecha.getUTCFullYear()}</p>
+      </div>
+      <div class="tercios">
+        ${terLabels.map((t,i)=>`<div class="tercio ${i===o.tercio?'on':''}">${t[0]}<b>${t[1]}</b></div>`).join('')}
+      </div>
+    </div>
+
+    <div class="alerta"><span class="k">Alerta de Apertura (${fechaCorta}):</span>
+      Mercado en el ${terNombre} Tercio con sesgo <b>${gapTxt}</b>.</div>
+
+    <div class="al-row al-macondo">
+      <div class="al-ico">🦋</div>
+      <div>
+        <h3>Alerta Macondo (Inside Trade Institucional)</h3>
+        <p>Brecha nocturna: Cierre anterior (<b>${money(o.ayer.c)}</b>) vs Apertura PM (<b>${money(o.aperturaPM)}</b>).
+        Diferencia Institucional: <b>${o.macondo >= 0 ? 'UP' : 'DOWN'} (${signed(o.macondo)})</b>.</p>
+      </div>
+    </div>
+
+    <div class="al-row al-tsu">
+      <div class="al-ico">📰</div>
+      <div>
+        <h3>Alerta de Tsunami Macroeconómico</h3>
+        <p>${o.fase2
+          ? `Estructura alcista confirmada sobre el pivote. <b>Fase 1:</b> espejismo sectorial en apertura (cobrar en 1ra vela).
+             <b>Fase 2 (post-apertura):</b> corto prohibido. Hércules cabalga el índice completo (Multiplicador x2).`
+          : `Sin marea macro a favor. <b>Fase 1:</b> operar la excursión de apertura y cobrar en 1ra vela.
+             <b>Fase 2:</b> desactivada — precio bajo el pivote (${money(o.pivot)}), sin multiplicador. Escudo alcista retirado.`}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ RELOJ INSTITUCIONAL ══ -->
+  <div class="reloj">
+    <h2>⏰ Reloj Institucional: Alertas Tempranas y Patrones de Tiempo</h2>
+    <div class="rel-grid">
+
+      <div class="rcard">
+        <h4>1. Memoria Oficial (Ayer)</h4>
+        <div class="pair">
+          <div><div class="lab">Techo (BB Top)</div><div class="big mono">${money(o.techo)}</div></div>
+          <div style="text-align:right"><div class="lab">Fuerza Base (Rango)</div><div class="mid mono">${money(o.rango)}</div></div>
+        </div>
+      </div>
+
+      <div class="rcard c2">
+        ${o.barrido ? '<span class="dot"></span>' : ''}
+        <h4>2. Reloj PM (El Engaño)</h4>
+        ${o.pmMax !== null ? `
+        <div class="pmrow">
+          <div><div class="lab up">Hora Máx</div><div class="mid mono up">${money(o.pmMax)}<span class="t">${hhmm(o.tMax)}</span></div></div>
+          <div style="text-align:right"><div class="lab dn">Hora Mín</div><div class="mid mono dn">${money(o.pmMin)}<span class="t">${hhmm(o.tMin)}</span></div></div>
+        </div>
+        <div class="flag ${o.barrido?'':'ok'}">${o.barrido
+          ? '¡Barrido en Campana! (Falso Suelo / Pánico Forzado institucional)'
+          : 'Sin barrido detectado en la ventana previa. Rango nocturno limpio.'}</div>`
+        : `<div class="dim">Ventana intradía no disponible en esta fuente. El Reloj PM se calcula sobre la brecha diaria.</div>
+           <div class="flag ok">Brecha nocturna: ${signed(o.gap)} sobre el cierre anterior.</div>`}
+      </div>
+
+      <div class="rcard c3">
+        <h4>3. Choque de Apertura</h4>
+        <div class="lab">Open oficial</div>
+        <div class="big mono">${money(o.open)}</div>
+        <div class="sep"></div>
+        <div class="scan">Escáner Ecosistemas:
+          <b class="${o.dentro?'':'warn'}">${o.dentro ? 'Dentro de los límites seguros' : 'Fuera de rango — vigilancia extrema'}</b></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══ TICKETS MOO ══ -->
+  <div class="card">
+    <div class="tk-top">
+      <h2>Tickets de Operación MOO (Delta Neutral)</h2>
+      <div class="openbox"><div class="lab">Precio apertura</div><div class="v mono">${money(o.open)}</div></div>
+    </div>
+    <hr class="rule">
+    <div class="tk-grid">
+
+      <div class="tk long">
+        <h3>📈 Cierre (Take Profit)</h3>
+        <div class="tkprice mono">${money(o.tpLong)}</div>
+        <div class="formula">${fmt(o.open)} + ${fmt(o.mayor)} (Mayor) − ${fmt(o.buffer)}</div>
+        <div class="subbox">
+          <h5>🌀 Súper Quero Centrífuga Positiva</h5>
+          <p>• Int: <b>${money(o.cIntUp)}</b></p>
+          ${o.divLong ? '<p class="warnline">⚠️ DIVERGENCIA — el objetivo no alcanza la centrífuga interna</p>' : '<p class="dim">Sin divergencia: objetivo alineado con la centrífuga</p>'}
+          <p>• Ext: <b>${money(o.cExtUp)}</b></p>
+        </div>
+        ${o.fase2 ? `
+        <div class="subbox tsubox">
+          <h5>🌊 Tsunami Macro (Fase 2)</h5>
+          <p>• Intermedio (x2): <b>${money(o.tsuInt)}</b></p>
+          <p>• Extraordinario (x2): <b>${money(o.tsuExt)}</b></p>
+          <div class="goal">Objetivo de vuelo macro: ${money(o.objetivo)}+</div>
+        </div>` : `
+        <div class="subbox">
+          <h5>🌊 Tsunami Macro</h5>
+          <p class="dim">Inactivo. Sin confirmación sobre el pivote ${money(o.pivot)}: el largo se cobra en la 1ra vela, sin multiplicador.</p>
+        </div>`}
+      </div>
+
+      <div class="tk short">
+        <h3>📉 Cierre (Take Profit)</h3>
+        <div class="tkprice mono">${money(o.tpShort)}</div>
+        <div class="formula">${fmt(o.open)} − ${fmt(o.menor)} (Menor) + ${fmt(o.buffer)}</div>
+        <div class="subbox">
+          <h5>🌀 Súper Quero Centrífuga Negativa</h5>
+          <p>• Int: <b>${money(o.cIntDn)}</b></p>
+          ${o.divShort ? '<p class="warnline">⚠️ DIVERGENCIA — el objetivo no alcanza la centrífuga interna</p>' : '<p class="dim">Sin divergencia: objetivo alineado con la centrífuga</p>'}
+          <p>• Ext: <b>${money(o.cExtDn)}</b></p>
+        </div>
+        ${o.fase2 ? `
+        <div class="subbox shield">
+          <h5>🛡️ Escudo Macro Activo</h5>
+          <div class="bar">CORTOS PROHIBIDOS. Riesgo de tsunami alcista global.</div>
+        </div>` : `
+        <div class="subbox">
+          <h5>🛡️ Escudo Macro</h5>
+          <p class="dim">Retirado. El corto queda habilitado bajo el pivote ${money(o.pivot)} con stop sobre ${money(o.open + o.atr14*0.5)}.</p>
+        </div>`}
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══ TU MERCE ACTIVA ══ -->
+  <div class="merce">
+    <h2>🛡️ Tu merce activa: el protocolo de marea macro</h2>
+    <p><b>Fase 1: El espejismo sectorial (apertura):</b> el mercado abre con brecha ${o.gap>=0?'al alza':'a la baja'}
+    de ${signed(o.gap)} sobre el cierre anterior${o.barrido ? `, tras un barrido en campana que fabricó un falso suelo en ${money(o.pmMin)}` : ''}.
+    La entrada se ejecuta en la apertura y se cobra ${o.dir==='LARGO'?'el largo':'el corto'} en la primera vela,
+    en ${money(o.dir==='LARGO'?o.tpLong:o.tpShort)}.</p>
+    <p><b>Fase 2: ${o.fase2 ? 'El tsunami' : 'La marea contenida'}:</b>
+    ${o.fase2
+      ? `la estructura confirma sobre el pivote ${money(o.pivot)} y se enciende el <i>Protocolo de Marea Macro</i>.
+         Los fondos compran el activo entero, ciegos al ruido sectorial.`
+      : `la estructura no confirma sobre el pivote ${money(o.pivot)}. No hay marea que cabalgar:
+         se respeta el objetivo de primera vela y se cierra el día.`}</p>
+    <p><b>🛡️ El escudo de tu merce:</b>
+    ${o.fase2
+      ? `se cancela cualquier sesgo bajista extendido y se activa el multiplicador x2 para el largo day trade,
+         cabalgando hasta ${money(o.tsuExt)}.`
+      : `sin multiplicador. El escudo protege la caja: una operación, un objetivo, y a casa.`}
+    Dominio del día: <b>${o.dir} · ${o.dominio}</b>.</p>
+  </div>
+
+  <!-- ══ COLISEO CUANTITATIVO ══ -->
+  <div class="card coliseo">
+    <h2>⚔️ Coliseo Cuantitativo: El Oráculo vs. los Modelos</h2>
+    <div class="col-grid">
+
+      <div class="col c1">
+        <span class="coltag">Predictivo</span>
+        <h3>La Bola de Cristal Predictiva 🔮</h3>
+        <div class="box">
+          <div class="lab">Vector de predicción</div>
+          <div class="v mono ${o.vector>=0?'':''}" style="color:${o.vector>=0?'var(--green)':'var(--red)'}">
+            ${(o.vector>=0?'+':'')}${o.vector.toFixed(2)}% (${o.vector>=0?'Largo':'Corto'})</div>
+        </div>
+        <div class="kv"><span>Predice Open:</span><b>${money(o.predOpen)}</b></div>
+        <div class="kv"><span>Open Real:</span><b style="color:${o.acierto?'var(--green)':'var(--red)'}">${money(o.open)} ${o.acierto?'✔':'✘'}</b></div>
+        <div class="analisis"><b>Análisis:</b> ${o.acierto
+          ? 'Acertó la dirección del viento, pero el punto de entrada exacto sigue siendo un promedio móvil, no una ejecución.'
+          : 'Falló la dirección. Modelos estáticos que no leen el latigazo de la última hora previa a la campana.'}</div>
+      </div>
+
+      <div class="col c2">
+        <span class="coltag">Estructural</span>
+        <h3>La Máquina Estructural ⚙️</h3>
+        <div class="box">
+          <div class="lab">Break Point (pivote)</div>
+          <div class="v mono" style="color:var(--blue)">${money(o.pivot)}</div>
+        </div>
+        <div class="box split">
+          <div><div class="lab">Long</div><div class="v" style="color:var(--green)">${o.longPct}%</div></div>
+          <div><div class="lab">Short</div><div class="v" style="color:var(--red)">${100-o.longPct}%</div></div>
+        </div>
+        <div class="analisis"><b>Análisis:</b> ingeniería pura. Detecta ${o.open<o.pivot?'debilidad bajo':'fortaleza sobre'}
+        el Break Point y asume postura reactiva de ${o.longPct>=50?o.longPct:100-o.longPct}%
+        ${o.longPct>=50?'larga':'corta'}. Sigue siendo conservador ante la guillotina.</div>
+      </div>
+
+      <div class="col c3">
+        <span class="coltag">El Oráculo</span>
+        <h3>El Instinto Asesino 🦋</h3>
+        <div class="box">
+          <div class="lab">Ejecución neurodivergente</div>
+          <div class="v">${o.letal}% Letal (${o.dir})</div>
+        </div>
+        <div class="box split">
+          <div><div class="lab">Piedad</div><div class="v" style="color:#f0a8c4">${100-o.letal}%</div></div>
+          <div><div class="lab">Dominio</div><div class="v" style="color:#4d0723">${o.dominio}</div></div>
+        </div>
+        <div class="analisis">"Los modelos adivinan y calculan, pero nosotros <b>EJECUTAMOS</b>.
+        ${o.barrido?'Vimos el latigazo en la campana':'Leímos la brecha antes de la campana'} y la divergencia estructural.
+        El ${o.dir.toLowerCase()} es la respuesta del día, y el mercado la firma."</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══ CONSEJO PARA OPERAR SEGURO (NUEVO) ══ -->
+  <div class="card safe">
+    <h2>🧯 Consejo para operar seguro</h2>
+    <p class="dim" style="margin:6px 0 0">Antes de tocar el botón: cuánto arriesgar, dónde va el stop y cuándo parar.</p>
+    <div class="safe-grid">
+
+      <div class="panel">
+        <h4>Calculadora de riesgo</h4>
+        <div class="field"><label for="cap">Capital (${ASSET.cuenta})</label><input id="cap" class="mono" type="number" value="1000" min="1" step="any"></div>
+        <div class="field"><label for="rsk">Riesgo por operación (%)</label><input id="rsk" class="mono" type="number" value="1" min="0.1" max="5" step="0.1"></div>
+        <div class="field"><label for="stp">Distancia de stop</label><input id="stp" class="mono" type="number" value="${(o.atr14*0.5).toFixed(dec)}" min="0" step="any"></div>
+        <div id="calc"></div>
+      </div>
+
+      <div class="panel">
+        <h4>Reglas del día</h4>
+        <div class="out"><span>Stop sugerido (largo)</span><b>${money(o.open - o.atr14*0.5)}</b></div>
+        <div class="out"><span>Stop sugerido (corto)</span><b>${money(o.open + o.atr14*0.5)}</b></div>
+        <div class="out"><span>Volatilidad diaria (ATR 14)</span><b>${money(o.atr14)}</b></div>
+        <div class="out"><span>Tope de pérdida diaria</span><b>2 % del capital</b></div>
+        <div class="out"><span>Operaciones máximas</span><b>2 por sesión</b></div>
+        <p class="dim" style="margin:10px 0 0;font-size:12.5px">Si saltan dos stops seguidos, el día se cierra. No hay tercera.</p>
+      </div>
+
+      <div class="panel">
+        <h4>Checklist antes de entrar</h4>
+        <label class="check"><input type="checkbox"><span>Tengo el stop puesto <b>en la plataforma</b>, no en la cabeza.</span></label>
+        <label class="check"><input type="checkbox"><span>La pérdida máxima cabe en mi capital sin dolor.</span></label>
+        <label class="check"><input type="checkbox"><span>El objetivo paga al menos 1,5 veces lo que arriesgo.</span></label>
+        <label class="check"><input type="checkbox"><span>No estoy recuperando una pérdida anterior.</span></label>
+        <label class="check"><input type="checkbox"><span>Estoy usando dinero que puedo permitirme perder.</span></label>
+      </div>
+
+    </div>
+
+    <div class="tip" id="tip"></div>
+
+    <p class="legal"><b>Esto es una herramienta de análisis, no una recomendación de inversión.</b>
+    Los niveles se calculan con reglas fijas sobre precios históricos y no predicen el futuro.
+    ${ASSET.riesgo} Opera sólo con dinero que puedas perder, y si algo no lo entiendes, no lo operes.</p>
+  </div>
+
+  <!-- ══ ESTADO ══ -->
+  <div class="card">
+    <div class="status">
+      <span class="pill ${DATA.error?'err':'live'}">${DATA.error ? 'Datos manuales' : 'Datos en vivo'}</span>
+      <span>Fuente: <b>${esc(DATA.fuente)}</b></span>
+      <span>Actualizado: <b id="stamp">${new Date().toLocaleTimeString('es-CL')}</b></span>
+      <button class="btn p" id="refresh">Actualizar ahora</button>
+      <button class="btn" id="toggleManual">Introducir datos a mano</button>
+    </div>
+    <div id="manual">
+      <hr class="rule">
+      <p class="dim">Si el mercado no responde (fin de semana, bloqueo del navegador o fuente caída), escribe los precios y el oráculo recalcula todo.</p>
+      <div class="mgrid">
+        <div class="field"><label>Cierre anterior</label><input id="m_pc" class="mono" type="number" step="any" value="${o.ayer.c}"></div>
+        <div class="field"><label>Máximo anterior</label><input id="m_ph" class="mono" type="number" step="any" value="${o.ayer.h}"></div>
+        <div class="field"><label>Mínimo anterior</label><input id="m_pl" class="mono" type="number" step="any" value="${o.ayer.l}"></div>
+        <div class="field"><label>Apertura de hoy</label><input id="m_o" class="mono" type="number" step="any" value="${o.open}"></div>
+      </div>
+      <button class="btn p" id="applyManual">Recalcular el oráculo</button>
+    </div>
+  </div>`;
+
+  // ---- eventos ----
+  document.querySelectorAll('#tabs .tab').forEach(b =>
+    b.onclick = () => { IDX = +b.dataset.i; pintar(); });
+  $('#refresh').onclick = () => iniciar(true);
+  $('#toggleManual').onclick = () => $('#manual').classList.toggle('show');
+  $('#applyManual').onclick = () => {
+    const g = id => parseFloat($(id).value);
+    const pc = g('#m_pc'), ph = g('#m_ph'), pl = g('#m_pl'), op = g('#m_o');
+    if (![pc,ph,pl,op].every(isFinite)) return alert('Revisa los cuatro precios: falta alguno o no es un número.');
+    const base = DATA.daily.slice(0, -1);
+    base.push({t: Date.now() - 864e5, o: pc, h: ph, l: pl, c: pc});
+    base.push({t: Date.now(), o: op, h: op, l: op, c: op});
+    DATA = {daily: base, intraday: [], fuente: 'Entrada manual', error: true};
+    IDX = base.length - 1; pintar();
+  };
+  const calc = () => {
+    const cap = parseFloat($('#cap').value), rp = parseFloat($('#rsk').value), st = parseFloat($('#stp').value);
+    if (!isFinite(cap) || !isFinite(rp) || !isFinite(st) || st <= 0) {
+      $('#calc').innerHTML = '<div class="out"><span>Completa capital, riesgo y stop para ver el tamaño.</span><b>--</b></div>'; return;
+    }
+    const perdida = cap * rp / 100;
+    const unidades = perdida / st;
+    const objetivo = Math.abs((o.dir === 'LARGO' ? o.tpLong : o.tpShort) - o.open);
+    const rr = objetivo / st;
+    $('#calc').innerHTML = `
+      <div class="out"><span>Tamaño de posición</span><b>${fmt(unidades, ASSET.sizeDec)} ${ASSET.unidad}</b></div>
+      <div class="out"><span>Pérdida máxima si salta el stop</span><b style="color:var(--red)">−${cash(perdida)}</b></div>
+      <div class="out"><span>Beneficio al objetivo del día</span><b style="color:var(--green)">+${cash(unidades*objetivo)}</b></div>
+      <div class="out"><span>Relación beneficio/riesgo</span><b style="color:${rr>=1.5?'var(--green)':'var(--red)'}">${rr.toFixed(2)} : 1</b></div>
+      ${rr < 1.5 ? '<p class="warnline" style="margin:9px 0 0">El objetivo no paga el riesgo. Acerca el stop o deja pasar la operación.</p>' : ''}`;
+  };
+  ['#cap','#rsk','#stp'].forEach(s => { $(s).oninput = calc; });
+  calc();
+
+  const consejos = [
+    ['Arriesga siempre lo mismo.', 'Un porcentaje fijo y pequeño por operación (1 % o menos) hace que ninguna racha mala te saque del juego. La supervivencia manda sobre el acierto.'],
+    ['El stop entra con la orden, no después.', 'Colocarlo al mismo tiempo que la entrada elimina la decisión emocional en el peor momento posible: cuando ya vas perdiendo.'],
+    ['Sin objetivo que pague, no hay operación.', 'Si lo que puedes ganar no supera claramente lo que arriesgas, la matemática juega en tu contra aunque aciertes más de la mitad de las veces.'],
+    ['Nunca dupliques para recuperar.', 'Aumentar el tamaño después de perder es la forma más rápida y más común de vaciar una cuenta.'],
+    ['El apalancamiento multiplica las dos direcciones.', 'Amplifica la ganancia y la pérdida por igual, y en productos apalancados puedes perder más de lo que depositaste.'],
+    ['Anota cada operación.', 'Un registro con la razón de entrada, el stop y el resultado enseña más en un mes que cualquier indicador.'],
+    ['Un plan escrito antes de abrir el mercado.', 'Decidir en caliente, con el precio moviéndose, es decidir mal. El plan se escribe cuando el mercado está cerrado.'],
+    ['Menos operaciones, mejores operaciones.', 'La mayoría de las pérdidas vienen de entradas que no estaban en el plan. Esperar sentado también es operar.']
+  ];
+  const c = consejos[new Date(o.hoy.t).getUTCDate() % consejos.length];
+  $('#tip').innerHTML = `<b>Consejo del día — ${c[0]}</b><br>${c[1]}`;
+}
+
+/* ============================================================
+   ARRANQUE + AUTO-ACTUALIZACIÓN
+   ============================================================ */
+async function iniciar(manual) {
+  if (!DATA) $('#app').innerHTML = '<div class="loading">Conectando con el mercado…</div>';
+  try {
+    const d = await cargarDatos();
+    const seguirUltimo = (IDX === -1) || (DATA && IDX === DATA.daily.length - 1);
+    DATA = d;
+    IDX = seguirUltimo ? DATA.daily.length - 1 : Math.min(IDX, DATA.daily.length - 1);
+    pintar();
+  } catch (e) {
+    if (DATA) { const s = $('#stamp'); if (s) s.textContent = 'sin respuesta · ' + new Date().toLocaleTimeString('es-CL'); return; }
+    $('#app').innerHTML = `<div class="card"><h2>El mercado no responde</h2>
+      <p class="dim" style="margin-top:8px">${esc(e.message)}</p>
+      <p class="dim">Suele pasar por bloqueo de red del navegador o porque la fuente está caída.
+      Prueba a recargar; si sigue igual, introduce los cuatro precios y el oráculo funciona igual.</p>
+      <div class="mgrid">
+        <div class="field"><label>Cierre anterior</label><input id="m_pc" class="mono" type="number" step="any"></div>
+        <div class="field"><label>Máximo anterior</label><input id="m_ph" class="mono" type="number" step="any"></div>
+        <div class="field"><label>Mínimo anterior</label><input id="m_pl" class="mono" type="number" step="any"></div>
+        <div class="field"><label>Apertura de hoy</label><input id="m_o" class="mono" type="number" step="any"></div>
+      </div>
+      <button class="btn p" id="bootManual">Calcular con estos precios</button>
+      <button class="btn" id="bootRetry">Reintentar conexión</button></div>`;
+    $('#bootRetry').onclick = () => iniciar(true);
+    $('#bootManual').onclick = () => {
+      const g = id => parseFloat($(id).value);
+      const pc = g('#m_pc'), ph = g('#m_ph'), pl = g('#m_pl'), op = g('#m_o');
+      if (![pc,ph,pl,op].every(isFinite)) return alert('Faltan precios. Completa los cuatro campos.');
+      const base = [];
+      for (let i = 24; i > 0; i--) base.push({t: Date.now() - i*864e5, o: pc, h: pc, l: pc, c: pc});
+      base[base.length-1] = {t: Date.now() - 864e5, o: pc, h: ph, l: pl, c: pc};
+      base.push({t: Date.now(), o: op, h: op, l: op, c: op});
+      DATA = {daily: base, intraday: [], fuente: 'Entrada manual', error: true};
+      IDX = base.length - 1; pintar();
+    };
+  }
+}
+iniciar();
+setInterval(() => iniciar(), 60000);           // se refresca solo cada minuto
+document.addEventListener('visibilitychange', () => { if (!document.hidden) iniciar(); });
+</script>
+</body>
+</html>
